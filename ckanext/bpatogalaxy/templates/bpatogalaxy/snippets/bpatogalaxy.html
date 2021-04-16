@@ -1,0 +1,8 @@
+{% if c.userobj %}
+    <h3>My Galaxy Workflows</h3>
+    <ul>
+      {% for wf_dict in h.bpatogalaxy_get_galaxy_workflows_helper() %}
+        <li>{{ wf_dict['name'] }}</li>
+      {% endfor %}
+    </ul>   
+{% endif %}
