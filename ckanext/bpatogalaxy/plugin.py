@@ -46,7 +46,7 @@ def get_galaxy_histories():
 
     gi = GalaxyInstance(url=galaxy_host, key=galaxy_key)
 
-    print("Retrieving Workflows list")
+    print("Retrieving Histories list")
 
     histories = gi.histories.get_histories()
 
@@ -69,7 +69,7 @@ def get_galaxy_libraries():
 
     gi = GalaxyInstance(url=galaxy_host, key=galaxy_key)
 
-    print("Retrieving Workflows list")
+    print("Retrieving Libraries list")
 
     libraries = gi.libraries.get_libraries()
 
