@@ -1,8 +1,25 @@
-{% if c.userobj %}
-    <h3>My Galaxy Workflows</h3>
-    <ul>
-      {% for wf_dict in h.bpatogalaxy_get_galaxy_workflows_helper() %}
-        <li>{{ wf_dict['name'] }}</li>
-      {% endfor %}
-    </ul>   
-{% endif %}
+{% set wflows = h.bpatogalaxy_get_galaxy_workflows_helper() %}
+<h3>My Galaxy Workflows - Count ({{wflows|length}})</h3>
+<ul>
+  {% for wf_dict in wflows %}
+    <li>{{ wf_dict['name'] }}</li>
+  {% endfor %}
+</ul>
+{% set hists = h.bpatogalaxy_get_galaxy_histories_helper() %}
+<h3>My Galaxy Histories - Count ({{hists|length}})</h3>
+<ul>
+  {% for hist_dict in hists %}
+    <li>{{ hist_dict['name'] }} - {{ hist_dict['id'] }}</li>
+  {% endfor %}
+</ul>
+{% set libs = h.bpatogalaxy_get_galaxy_libraries_helper() %}
+<h3>My Galaxy Libraries - Count ({{libs|length}}) </h3>
+<ul>
+  {% for lib_dict in libs %}
+    <li>{{ lib_dict['name'] }} - {{ lib_dict['id'] }}</li>
+  {% endfor %}
+</ul>
+<h3>My s3 pre signed URL</h3>
+<ul>
+    <li>{{ h.bpatogalaxy_get_s3_presigned_url_helper() }}</li>
+</ul>
