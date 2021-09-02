@@ -11,24 +11,27 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='''ckanext-bpatogalaxy''',
-
-    # Versions should comply with PEP440.  For a discussion on single-sourcing
-    # the version across setup.py and the project code, see
-    # http://packaging.python.org/en/latest/tutorial.html#version
     version='0.0.1',
-
     description='''BPA to Galaxy extension''',
     long_description=long_description,
-
-    # The project's main homepage.
     url='https://github.com/BioplatformsAustralia/ckanext-bpatogalaxy',
-
-    # Author details
-    author='''Alejandro Bulgaris''',
-    author_email='''alejandro.bulgaris@qcif.edu.au''',
-
-    # Choose your license
-    license='AGPL',
+    author='Bioplatforms Australia',
+    author_email='help@bioplatforms.com',
+    license='GPL3',
+    keywords='''CKAN Galaxy galaxy''',
+    packages=['ckanext.bpatogalaxy'],
+    namespace_packages=['ckanext'],
+    include_package_data=True,
+    package_dir={'ckanext.bpatogalaxy': 'ckanext/bpatogalaxy'},
+    package_data={'ckanext.bpatogalaxy': ['*.json', 'templates/*.html', 'templates/*/*.html', 'templates/*/*/*.html', 'static/*.css', 'static/*.png', 'static/*.jpg', 'static/*.css', 'static/*.ico']},
+    entry_points='''
+        [ckan.plugins]
+        bpatogalaxy=ckanext.bpatogalaxy.plugin:BpatogalaxyPlugin
+    ''',
+    
+    # ########################################
+    # TODO remove entries that are not needed 
+    # ########################################
 
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
@@ -45,47 +48,17 @@ setup(
         # that you indicate whether you support Python 2, Python 3 or both.
         'Programming Language :: Python :: 2.7',
     ],
-
-
-    # What does your project relate to?
-    keywords='''CKAN Galaxy galaxy''',
-
-    # You can just specify the packages manually here if your project is
-    # simple. Or you can use find_packages().
-    packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
-    namespace_packages=['ckanext'],
-
     install_requires=[
       # CKAN extensions should not list dependencies here, but in a separate
       # ``requirements.txt`` file.
       #
       # http://docs.ckan.org/en/latest/extensions/best-practices.html#add-third-party-libraries-to-requirements-txt
     ],
-
-    # If there are data files included in your packages that need to be
-    # installed, specify them here.  If using Python 2.6 or less, then these
-    # have to be included in MANIFEST.in as well.
-    include_package_data=True,
-    package_data={
-    },
-
     # Although 'package_data' is the preferred approach, in some case you may
     # need to place data files outside of your packages.
     # see http://docs.python.org/3.4/distutils/setupscript.html#installing-additional-files
     # In this case, 'data_file' will be installed into '<sys.prefix>/my_data'
     data_files=[],
-
-    # To provide executable scripts, use entry points in preference to the
-    # "scripts" keyword. Entry points provide cross-platform support and allow
-    # pip to create the appropriate form of executable for the target platform.
-    entry_points='''
-        [ckan.plugins]
-        bpatogalaxy=ckanext.bpatogalaxy.plugin:BpatogalaxyPlugin
-
-        [babel.extractors]
-        ckan = ckan.lib.extract:extract_ckan
-    ''',
-
     # If you are changing from the default layout of your extension, you may
     # have to change the message extractors, you can read more about babel
     # message extraction at

@@ -23,6 +23,8 @@ class BpatogalaxyController(BaseController):
         self.limit = p.toolkit.asint(config.get("ckanext.bulk.limit", 100))
 
     def index(self):
-        return p.toolkit.render("bpatogalaxy/snippets/bpatogalaxy.html")
+        return p.toolkit.render("bpatogalaxy/snippets/bpatogalaxy_send_resource.html")
 
+    def send_package_to_galaxy(self, id):
+        return p.toolkit.render("bpatogalaxy/snippets/bpatogalaxy_send_package.html")
 

@@ -85,44 +85,22 @@ def get_galaxy_libraries():
 
 
 def get_s3_presigned_url():
-    host_name = config.get('ckanext.s3filestore.host_name')
-    bucket_name = config.get('ckanext.s3filestore.aws_bucket_name')
-    region = config.get('ckanext.s3filestore.region_name')
-    p_key = config.get('ckanext.s3filestore.aws_access_key_id')
-    s_key = config.get('ckanext.s3filestore.aws_secret_access_key')
     bucket_path = config.get('ckanext.s3filestore.aws_storage_path')
-    bucket_path_key = bucket_path +  config.get('ckanext.bpatogalaxy.galaxy_test_file')
+    bpa_resource_url = bucket_path +  config.get('ckanext.bpatogalaxy.galaxy_test_file')
     galaxy_host = config.get('ckanext.bpatogalaxy.galaxy_host')
     galaxy_key = config.get('ckanext.bpatogalaxy.galaxy_api_key')
-    
-    print(" ================================ ")
-    print(" ================================ host_name "+host_name)
-    print(" ================================ ")
-    print(" ================================ bucket_name "+bucket_name)
-    print(" ================================ ")
-    print(" ================================ region "+region)
-    print(" ================================ ")
-    print(" ================================ p_key "+p_key)
-    print(" ================================ ")
-    print(" ================================ bucket_path_key "+bucket_path_key)
-
-    s3 = boto3.session.Session(aws_access_key_id=p_key,
-                               aws_secret_access_key=s_key,
-                               region_name=region)
-
-    client = s3.client(service_name='s3', endpoint_url=host_name)
-
-    url = client.generate_presigned_url(ClientMethod='get_object',
-                                        Params={'Bucket': bucket_name,
-                                                'Key': bucket_path_key},
-                                        ExpiresIn=300)
+    token_key = config.get('ckanext.bpatogalaxy.ckan_api_key')
+    token_name= config.get('ckanext.bpatogalaxy.ckan_api_key_name')
     
     gi = GalaxyInstance(url=galaxy_host, key=galaxy_key)
 
-    libraries = gi.libraries.get_libraries()
+    histories = gi.histories.get_histories()
 
-    if len(libraries) == 1:
-        gi.libraries.upload_file_from_url(libraries[0]['id'],url)
+    url = bpa_resource_url
+
+    if len(histories) >= 0:
+        print("Uploading from history to url")
+        gi.histories.upload_history_from_url(url=url,token_name=token_name,token_key=token_key)
     else:
         print("\nDo nothing!!!")
 
@@ -142,6 +120,13 @@ class BpatogalaxyPlugin(plugins.SingletonPlugin):
             controller=bpa_ga_controller, 
             action="index"
         )
+        bpa_ga_pkg_controller = "ckanext.bpatogalaxy.controller:BpatogalaxyController"
+        map.connect(
+            "bpatogalaxy_send_package",
+            "/bpatogalaxy/{id}/send_package_to_galaxy",
+            action="send_package_to_galaxy",
+            controller=bpa_ga_pkg_controller,
+        )
         return map
 
     def after_map(self, map):
@@ -149,6 +134,8 @@ class BpatogalaxyPlugin(plugins.SingletonPlugin):
     
     def update_config(self, config):
         toolkit.add_template_directory(config, "templates")
+        toolkit.add_public_directory(config, "static")
+        toolkit.add_resource('fanstatic', 'bpatogalaxy')
 
     def get_helpers(self):
         '''Register the most_popular_groups() function above as a template
