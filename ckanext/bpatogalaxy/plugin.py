@@ -53,11 +53,7 @@ def get_galaxy_histories():
     if len(histories) == 0:
         print("There are no Histories in your account.")
     else:
-        print("\nHistories:")
-        for hist_dict in histories:
-            # As an example, we retrieve a piece of metadata (the size) using show_history
-            hist_details = gi.histories.show_history(hist_dict['id'])
-            print("{} ({}) : {}".format(hist_dict['name'], hist_details['size'], hist_dict['id']))
+        print("There are Histories found "+len(histories))
 
     return histories
 
@@ -85,24 +81,71 @@ def get_galaxy_libraries():
 
 
 def get_s3_presigned_url():
+    host_name = config.get('ckanext.s3filestore.host_name')
+    bucket_name = config.get('ckanext.s3filestore.aws_bucket_name')
+    region = config.get('ckanext.s3filestore.region_name')
+    p_key = config.get('ckanext.s3filestore.aws_access_key_id')
+    s_key = config.get('ckanext.s3filestore.aws_secret_access_key')
     bucket_path = config.get('ckanext.s3filestore.aws_storage_path')
-    bpa_resource_url = bucket_path +  config.get('ckanext.bpatogalaxy.galaxy_test_file')
+    bucket_path_key = bucket_path +  config.get('ckanext.bpatogalaxy.galaxy_test_file')
     galaxy_host = config.get('ckanext.bpatogalaxy.galaxy_host')
     galaxy_key = config.get('ckanext.bpatogalaxy.galaxy_api_key')
-    token_key = config.get('ckanext.bpatogalaxy.ckan_api_key')
-    token_name= config.get('ckanext.bpatogalaxy.ckan_api_key_name')
+    
+    print(" ================================ ")
+    print(" ================================ host_name "+host_name)
+    print(" ================================ ")
+    print(" ================================ bucket_name "+bucket_name)
+    print(" ================================ ")
+    print(" ================================ region "+region)
+    print(" ================================ ")
+    print(" ================================ p_key "+p_key)
+    print(" ================================ ")
+    print(" ================================ bucket_path_key "+bucket_path_key)
+
+    s3 = boto3.session.Session(aws_access_key_id=p_key,
+                               aws_secret_access_key=s_key,
+                               region_name=region)
+
+    client = s3.client(service_name='s3', endpoint_url=host_name)
+
+    url = client.generate_presigned_url(ClientMethod='get_object',
+                                        Params={'Bucket': bucket_name,
+                                                'Key': bucket_path_key},
+                                        ExpiresIn=300)
     
     gi = GalaxyInstance(url=galaxy_host, key=galaxy_key)
 
     histories = gi.histories.get_histories()
 
-    url = bpa_resource_url
-
+    print(" ================================ ")
+    print(" ================================ url "+url)
+    history_id = 0
     if len(histories) >= 0:
-        print("Uploading from history to url")
-        gi.histories.upload_history_from_url(url=url,token_name=token_name,token_key=token_key)
+        print(" ================================ ")
+        print(" ================================ Uploading to existing history from url")
+        for hist_dict in histories:
+            print(" ================================ iterate")
+            # hist_details = histories.show_history(hist_dict['id'])
+            # print("{} ({}) : {}".format(hist_dict['name'], hist_details['size'], hist_dict['id']))
+            print(" ================================ hist_dict['id'] "+str(hist_dict['id']))
+            history_id = hist_dict['id']
+        if history_id > 0:
+            print(" ================================ ")
+            print(" ================================ existing history_id "+str(history_id))
+            tool_output = gi.tools.paste_content(url, history_id)
+            print(" ================================ ")
+            print(" ================================ tool_output "+str(tool_output))
     else:
-        print("\nDo nothing!!!")
+        print(" ================================ ")
+        print(" ================================ Uploading to newly created history from url")
+        history = histories.create_history(name="paste_url_BPA_to_Galaxy_history")
+        history_id = history["id"]
+        if history_id > 0:
+            print(" ================================ ")
+            print(" ================================ created history_id "+str(history_id))
+            tool_output = gi.tools.paste_content(url, history_id)
+            print(" ================================ ")
+            print(" ================================ tool_output "+str(tool_output))
 
     return url
 
