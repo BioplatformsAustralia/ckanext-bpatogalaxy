@@ -125,8 +125,44 @@ def get_s3_presigned_url():
         print(" ================================ Uploading to existing history from url")
         for hist_dict in histories:
             print(" ================================ iterate")
-            # hist_details = histories.show_history(hist_dict['id'])
-            # print("{} ({}) : {}".format(hist_dict['name'], hist_details['size'], hist_dict['id']))
+            print(" ================================ hist_dict['id'] "+str(hist_dict['id']))
+            history_id = hist_dict['id']
+        if history_id > 0:
+            print(" ================================ ")
+            print(" ================================ existing history_id "+str(history_id))
+            tool_output = gi.tools.paste_content(url, history_id)
+            print(" ================================ ")
+            print(" ================================ tool_output "+str(tool_output))
+    else:
+        print(" ================================ ")
+        print(" ================================ Uploading to newly created history from url")
+        history = histories.create_history(name="paste_url_BPA_to_Galaxy_history")
+        history_id = history["id"]
+        if history_id > 0:
+            print(" ================================ ")
+            print(" ================================ created history_id "+str(history_id))
+            tool_output = gi.tools.paste_content(url, history_id)
+            print(" ================================ ")
+            print(" ================================ tool_output "+str(tool_output))
+
+    return url
+
+
+def send_temp_presigned_url_to_galaxy(url):
+    galaxy_host = config.get('ckanext.bpatogalaxy.galaxy_host')
+    galaxy_key = config.get('ckanext.bpatogalaxy.galaxy_api_key')
+    
+    gi = GalaxyInstance(url=galaxy_host, key=galaxy_key)
+    histories = gi.histories.get_histories()
+
+    print(" ================================ ")
+    print(" ================================ url "+url)
+    history_id = 0
+    if len(histories) >= 0:
+        print(" ================================ ")
+        print(" ================================ Uploading to existing history from url")
+        for hist_dict in histories:
+            print(" ================================ iterate")
             print(" ================================ hist_dict['id'] "+str(hist_dict['id']))
             history_id = hist_dict['id']
         if history_id > 0:
@@ -165,9 +201,9 @@ class BpatogalaxyPlugin(plugins.SingletonPlugin):
         )
         bpa_ga_pkg_controller = "ckanext.bpatogalaxy.controller:BpatogalaxyController"
         map.connect(
-            "bpatogalaxy_send_package",
-            "/bpatogalaxy/{id}/send_package_to_galaxy",
-            action="send_package_to_galaxy",
+            "bpatogalaxy_send_resource",
+            "/bpatogalaxy/{package_id}/{resource_id}",
+            action="send_resource_to_galaxy",
             controller=bpa_ga_pkg_controller,
         )
         return map
@@ -191,6 +227,7 @@ class BpatogalaxyPlugin(plugins.SingletonPlugin):
             'bpatogalaxy_get_galaxy_workflows_helper': get_galaxy_workflows,
             'bpatogalaxy_get_galaxy_histories_helper': get_galaxy_histories,
             'bpatogalaxy_get_galaxy_libraries_helper': get_galaxy_libraries,
-            'bpatogalaxy_get_s3_presigned_url_helper': get_s3_presigned_url
+            'bpatogalaxy_get_s3_presigned_url_helper': get_s3_presigned_url,
+            'bpatogalaxy_send_temp_presigned_url_to_galaxy_helper': send_temp_presigned_url_to_galaxy,
         }
 
