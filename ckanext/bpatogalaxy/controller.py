@@ -17,19 +17,9 @@ class BpatogalaxyController(base.BaseController):
         super(base.BaseController, self).__init__(*args, **kwargs)
         self.limit = p.toolkit.asint(config.get("ckanext.bulk.limit", 100))
 
-    def index(self):
-        return p.toolkit.render("bpatogalaxy/snippets/bpatogalaxy_send_resource_dev_test.html")
-
     def send_resource_to_galaxy(self, package_id, resource_id):
-        print("======================= send_resource_to_galaxy ==============================")
         print(str(package_id))
         print(str(resource_id))
-        print("======================= send_resource_to_galaxy ==============================")
-        
         return base.render('base_bpatogalaxy/bpatogalaxy_send_resource.html',
                            extra_vars={'package_id': package_id, 'resource_id': resource_id})
-
-    def send_temp_url_to_galaxy(self, url):
-        return base.render('base_bpatogalaxy/bpatogalaxy_send_resource.html',
-                           extra_vars={'url': url})
 

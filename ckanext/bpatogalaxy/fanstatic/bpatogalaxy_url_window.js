@@ -8,7 +8,7 @@ ckan.module('bpatogalaxy_url_window', function ($) {
             this.el.on('click', this._onClick);
         },
         _onClick: function (event) {
-            this.sandbox.client.call('GET', 'download_window',
+            this.sandbox.client.call('GET', 'download_window_send_to_galaxy',
                 '?package_id=' + this.options.id + '&resource_id=' + this.options.rid,
                 this._onReceiveApiSnippet,
                 this._onReceiveApiSnippetError
@@ -58,7 +58,7 @@ ckan.module('bpatogalaxy_url_window', function ($) {
                 });
                 setTimeout(function () {
                     element.popover('destroy');
-                }, 6000);
+                }, 50000);
             });
             element.popover('destroy');
             element.popover({
