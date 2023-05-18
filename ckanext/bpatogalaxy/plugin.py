@@ -47,7 +47,7 @@ class BpatogalaxyPlugin(plugins.SingletonPlugin):
             'bpatogalaxy_get_galaxy_workflows_helper': helpers.get_galaxy_workflows,
             'bpatogalaxy_get_galaxy_histories_helper': helpers.get_galaxy_histories,
             'bpatogalaxy_get_galaxy_libraries_helper': helpers.get_galaxy_libraries,
-            'bpatogalaxy_get_s3_presigned_url_helper': helpers.get_s3_presigned_url
+            'bpatogalaxy_get_s3_presigned_url_helper': helpers.send_temp_presigned_url_to_galaxy
         }
 
     def get_blueprint(self):
