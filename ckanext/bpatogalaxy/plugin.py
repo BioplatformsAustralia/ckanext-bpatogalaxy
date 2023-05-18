@@ -9,6 +9,9 @@ from ckanext.bpatogalaxy.views import bpatogalaxy
 
 log = logging.getLogger(__name__)
 
+
+
+
 class BpatogalaxyPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IRoutes, inherit=True)
@@ -16,18 +19,11 @@ class BpatogalaxyPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IBlueprint, inherit=True)
 
     def before_map(self, map):
-        bpa_ga_controller = "ckanext.bpatogalaxy.controller:BpatogalaxyController"
-        map.connect(
-            "bpatogalaxy", 
-            "/bpatogalaxy",
-            controller=bpa_ga_controller, 
-            action="index"
-        )
         bpa_ga_pkg_controller = "ckanext.bpatogalaxy.controller:BpatogalaxyController"
         map.connect(
-            "bpatogalaxy_send_package",
-            "/bpatogalaxy/{id}/send_package_to_galaxy",
-            action="send_package_to_galaxy",
+            "bpatogalaxy_send_resource",
+            "/bpatogalaxy/{package_id}/{resource_id}",
+            action="send_resource_to_galaxy",
             controller=bpa_ga_pkg_controller,
         )
         return map

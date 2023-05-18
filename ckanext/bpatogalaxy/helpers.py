@@ -41,11 +41,7 @@ def get_galaxy_histories():
     if len(histories) == 0:
         print("There are no Histories in your account.")
     else:
-        print("\nHistories:")
-        for hist_dict in histories:
-            # As an example, we retrieve a piece of metadata (the size) using show_history
-            hist_details = gi.histories.show_history(hist_dict['id'])
-            print("{} ({}) : {}".format(hist_dict['name'], hist_details['size'], hist_dict['id']))
+        print("There are Histories found "+len(histories))
 
     return histories
 
@@ -72,24 +68,23 @@ def get_galaxy_libraries():
     return libraries
 
 
-def get_s3_presigned_url():
-    bucket_path = tk.config.get('ckanext.s3filestore.aws_storage_path')
-    bpa_resource_url = bucket_path + tk.config.get('ckanext.bpatogalaxy.galaxy_test_file')
+def send_temp_presigned_url_to_galaxy(url):
     galaxy_host = tk.config.get('ckanext.bpatogalaxy.galaxy_host')
     galaxy_key = tk.config.get('ckanext.bpatogalaxy.galaxy_api_key')
-    token_key = tk.config.get('ckanext.bpatogalaxy.ckan_api_key')
-    token_name= tk.config.get('ckanext.bpatogalaxy.ckan_api_key_name')
     
     gi = GalaxyInstance(url=galaxy_host, key=galaxy_key)
-
     histories = gi.histories.get_histories()
 
-    url = bpa_resource_url
-
+    history_id = 0
     if len(histories) >= 0:
-        print("Uploading from history to url")
-        gi.histories.upload_history_from_url(url=url,token_name=token_name,token_key=token_key)
+        for hist_dict in histories:
+            history_id = hist_dict['id']
+        if history_id > 0:
+            tool_output = gi.tools.paste_content(url, history_id)
     else:
-        print("\nDo nothing!!!")
+        history = histories.create_history(name="paste_url_BPA_to_Galaxy_history")
+        history_id = history["id"]
+        if history_id > 0:
+            tool_output = gi.tools.paste_content(url, history_id)
 
     return url
