@@ -1,6 +1,12 @@
+{% ckan_extends %}
+
+{% block bpatogalaxy %}
+{% set url =  h.bpatogalaxy_get_s3_presigned_url_helper %}
 <span class="s3-window-url">
     <div class="s3-window-copied">Resource Temp URL Sent to Galaxy (Activation expires in {{ expiry_in_minutes }} minutes)
         <br>
         {{ url }}
     </div>
 </span>
+
+{% endblock %}

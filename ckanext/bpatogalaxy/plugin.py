@@ -14,23 +14,10 @@ log = logging.getLogger(__name__)
 
 class BpatogalaxyPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
-    plugins.implements(plugins.IRoutes, inherit=True)
     plugins.implements(plugins.ITemplateHelpers)
     plugins.implements(plugins.IBlueprint, inherit=True)
 
-    def before_map(self, map):
-        bpa_ga_pkg_controller = "ckanext.bpatogalaxy.controller:BpatogalaxyController"
-        map.connect(
-            "bpatogalaxy_send_resource",
-            "/bpatogalaxy/{package_id}/{resource_id}",
-            action="send_resource_to_galaxy",
-            controller=bpa_ga_pkg_controller,
-        )
-        return map
-
-    def after_map(self, map):
-        return map
-    
+     
     def update_config(self, config):
         toolkit.add_template_directory(config, "templates")
         toolkit.add_public_directory(config, "static")

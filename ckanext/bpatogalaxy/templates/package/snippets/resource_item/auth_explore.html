@@ -1,0 +1,13 @@
+{% ckan_extends %}
+
+{% block resource_item_explore_links %}
+{{ super() }}
+
+<li>
+    <a href="{{ h.url_for('bpatogalaxy.send_package_to_galaxy', id=res.id) }}">
+    <i class="fa fa-external-link"></i>
+    {{_('Send resource to Galaxy')}}
+    </a>
+</li>
+
+{% endblock %}

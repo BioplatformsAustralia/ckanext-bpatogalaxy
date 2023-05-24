@@ -71,7 +71,8 @@ def get_galaxy_libraries():
 def send_temp_presigned_url_to_galaxy(url):
     galaxy_host = tk.config.get('ckanext.bpatogalaxy.galaxy_host')
     galaxy_key = tk.config.get('ckanext.bpatogalaxy.galaxy_api_key')
-    
+    breakpoint()
+
     gi = GalaxyInstance(url=galaxy_host, key=galaxy_key)
     histories = gi.histories.get_histories()
 
@@ -79,12 +80,9 @@ def send_temp_presigned_url_to_galaxy(url):
     if len(histories) >= 0:
         for hist_dict in histories:
             history_id = hist_dict['id']
-        if history_id > 0:
-            tool_output = gi.tools.paste_content(url, history_id)
     else:
         history = histories.create_history(name="paste_url_BPA_to_Galaxy_history")
         history_id = history["id"]
-        if history_id > 0:
-            tool_output = gi.tools.paste_content(url, history_id)
-
+    if history_id > 0:
+        tool_output = gi.tools.paste_content(url, history_id)
     return url
