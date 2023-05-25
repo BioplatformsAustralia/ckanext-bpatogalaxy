@@ -4,9 +4,9 @@
 {{ super() }}
 
 <li>
-    <a href="{{ h.url_for('bpatogalaxy.send_package_to_galaxy', id=res.id) }}">
+    <a href="{{ h.url_for('bpatogalaxy.send_package_to_galaxy', id=pkg.id, resource_id=res.id) }}">
     <i class="fa fa-external-link"></i>
-    {{_('Send resource to Galaxy')}}
+    {{_('Publish resource to Galaxy')}}
     </a>
 </li>
 

@@ -68,21 +68,25 @@ def get_galaxy_libraries():
     return libraries
 
 
-def send_temp_presigned_url_to_galaxy(url):
+def send_temp_presigned_url_to_galaxy(resource_id):
     galaxy_host = tk.config.get('ckanext.bpatogalaxy.galaxy_host')
     galaxy_key = tk.config.get('ckanext.bpatogalaxy.galaxy_api_key')
-    breakpoint()
-
+    galaxy_drs_proxy = tk.config.get('ckanext.bpatogalaxy.galaxy_drs_proxy')
+    error = False
+    user = tk.g.userobj
+    if not user:
+        error = True
+        return error
     gi = GalaxyInstance(url=galaxy_host, key=galaxy_key)
-    histories = gi.histories.get_histories()
-
-    history_id = 0
-    if len(histories) >= 0:
-        for hist_dict in histories:
-            history_id = hist_dict['id']
-    else:
-        history = histories.create_history(name="paste_url_BPA_to_Galaxy_history")
-        history_id = history["id"]
-    if history_id > 0:
-        tool_output = gi.tools.paste_content(url, history_id)
-    return url
+    bpa_user = gi.users.get_users(f_email=user.email)
+    if len(bpa_user) == 0:
+        error = True
+        return error
+    bpa_user = bpa_user[0]
+    url = f"drs://{galaxy_drs_proxy}/{resource_id}"
+    gi.json_headers["run_as"] = bpa_user["id"]
+    result = gi.histories.upload_dataset_from_library(url=url)
+    if not result:
+        error = True
+        return error
+    return error
