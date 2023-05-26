@@ -68,25 +68,31 @@ def get_galaxy_libraries():
     return libraries
 
 
-def send_temp_presigned_url_to_galaxy(resource_id):
+def send_temp_presigned_url_to_galaxy(resource_id, res_name):
     galaxy_host = tk.config.get('ckanext.bpatogalaxy.galaxy_host')
     galaxy_key = tk.config.get('ckanext.bpatogalaxy.galaxy_api_key')
     galaxy_drs_proxy = tk.config.get('ckanext.bpatogalaxy.galaxy_drs_proxy')
-    error = False
+    
     user = tk.g.userobj
     if not user:
-        error = True
-        return error
+        raise ValueError("User object is not available.")
+    
     gi = GalaxyInstance(url=galaxy_host, key=galaxy_key)
     bpa_user = gi.users.get_users(f_email=user.email)
     if len(bpa_user) == 0:
-        error = True
-        return error
+        raise ValueError("BPA user not found in Galaxy.")
     bpa_user = bpa_user[0]
+    
     url = f"drs://{galaxy_drs_proxy}/{resource_id}"
-    gi.json_headers["run_as"] = bpa_user["id"]
-    result = gi.histories.upload_dataset_from_library(url=url)
+    gi.json_headers["run-as"] = bpa_user["id"]
+    
+    hist_id = gi.histories.get_most_recently_used_history()["id"]
+    item = gi.tools.put_url(url, hist_id)
+    hist_dataset_id = item["outputs"][0]["id"]
+    
+    result = gi.histories.update_dataset(history_id=hist_id, dataset_id=hist_dataset_id, name=res_name)
     if not result:
-        error = True
-        return error
-    return error
+        raise ValueError("Failed to update dataset in Galaxy history.")
+    
+    return False  # Success, no error
+    
