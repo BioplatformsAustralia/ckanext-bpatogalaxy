@@ -11,6 +11,7 @@ bpatogalaxy = Blueprint('bpatogalaxy', __name__, url_prefix=u'/dataset/<id>/reso
 
 
 def send_package_to_galaxy(id, resource_id):
+    galaxy_host = tk.config.get('ckanext.bpatogalaxy.galaxy_host')
     resource = tk.get_action('resource_show')({'ignore_auth':True}, {'id': resource_id})
     if not resource:
         h.flash_error("Resource not found")
@@ -22,9 +23,9 @@ def send_package_to_galaxy(id, resource_id):
         h.flash_error(e)
         return tk.redirect_to(tk.url_for('dataset.read', id=id))
     if not result:
-        h.flash_success("Package sent to Galaxy")    
+        h.flash_success(f'Resource sent to <a href="{galaxy_host}" target="_blank">Galaxy</a>')    
     else:
-        h.flash_error("Error sending package to Galaxy")
+        h.flash_error(f'The Resource could not be sent. Please log in into <a href="{galaxy_host}" target="_blank">Galaxy</a>')
         
     return tk.redirect_to(tk.url_for('dataset.read', id=id))
 
