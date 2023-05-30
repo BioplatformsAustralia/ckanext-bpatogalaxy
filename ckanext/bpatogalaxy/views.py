@@ -2,7 +2,7 @@ import logging
 import ckan.lib.helpers as h
 from ckan.plugins import toolkit as tk
 from ckanext.bpatogalaxy import helpers as helpers
-from flask import Blueprint
+from flask import Blueprint,Markup
 
 log = logging.getLogger(__name__)
 
@@ -23,9 +23,9 @@ def send_package_to_galaxy(id, resource_id):
         h.flash_error(e)
         return tk.redirect_to(tk.url_for('dataset.read', id=id))
     if not result:
-        h.flash_success(f'Resource sent to <a href="{galaxy_host}" target="_blank">Galaxy</a>')    
+        h.flash_success(Markup(f'Resource sent to <a href="{galaxy_host}" target="_blank">Galaxy</a>'))    
     else:
-        h.flash_error(f'The Resource could not be sent. Please log in into <a href="{galaxy_host}" target="_blank">Galaxy</a>')
+        h.flash_error(Markup(f'The Resource could not be sent. Please log in into <a href="{galaxy_host}" target="_blank">Galaxy</a>'))
         
     return tk.redirect_to(tk.url_for('dataset.read', id=id))
 
