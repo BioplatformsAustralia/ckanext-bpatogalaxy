@@ -69,6 +69,7 @@ def get_galaxy_libraries():
 
 
 def send_temp_presigned_url_to_galaxy(resource_id, res_name):
+    
     galaxy_host = tk.config.get('ckanext.bpatogalaxy.galaxy_host')
     galaxy_key = tk.config.get('ckanext.bpatogalaxy.galaxy_api_key')
     galaxy_drs_proxy = tk.config.get('ckanext.bpatogalaxy.galaxy_drs_proxy')

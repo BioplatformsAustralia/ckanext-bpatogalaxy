@@ -19,8 +19,9 @@ def send_package_to_galaxy(id, resource_id):
     try:
         result = helpers.send_temp_presigned_url_to_galaxy(resource_id, resource.get('name'))
     except Exception as e:
+        # keep the error message in the log, but show a generic message to the user
         log.error(e)
-        h.flash_error(e)
+        h.flash_error(Markup(f'The Resource could not be sent. Please log in into <a href="{galaxy_host}" target="_blank">Galaxy</a>'))
         return tk.redirect_to(tk.url_for('dataset.read', id=id))
     if not result:
         h.flash_success(Markup(f'Resource sent to <a href="{galaxy_host}" target="_blank">Galaxy</a>'))    
