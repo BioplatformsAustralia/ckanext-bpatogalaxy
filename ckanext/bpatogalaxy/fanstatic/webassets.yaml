@@ -1,0 +1,6 @@
+bpatogalaxy-js:
+    contents:
+        - bpatogalaxy_url_window.js
+    filters:
+        - rjsmin
+    output: %(version)s_bpatogalaxy.js

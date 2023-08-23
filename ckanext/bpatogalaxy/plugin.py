@@ -1,125 +1,23 @@
 import logging
-import pylons
 
-import urllib2
-import urllib
-import json
-import pprint
-
-import boto3
-from ckantoolkit import config
 
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
-import ckan.model as model
-from ckan.plugins import IPackageController
-from bioblend.galaxy import GalaxyInstance
+
+from ckanext.bpatogalaxy import helpers
+from ckanext.bpatogalaxy.views import bpatogalaxy
 
 log = logging.getLogger(__name__)
 
 
-def get_galaxy_workflows():
-    print("Initiating Galaxy connection")
-    galaxy_host = config.get('ckanext.bpatogalaxy.galaxy_host')
-    galaxy_key = config.get('ckanext.bpatogalaxy.galaxy_api_key')
-
-    gi = GalaxyInstance(url=galaxy_host, key=galaxy_key)
-
-    print("Retrieving Workflows list")
-
-    workflows = gi.workflows.get_workflows()
-
-    if len(workflows) == 0:
-        print("There are no Workflows in your account.")
-    else:
-        print("\nWorkflows:")
-        for wf_dict in workflows:
-            print("{} : {}".format(wf_dict['name'], wf_dict['id']))
-
-    return workflows
-
-
-def get_galaxy_histories():
-    print("Initiating Galaxy connection")
-    galaxy_host = config.get('ckanext.bpatogalaxy.galaxy_host')
-    galaxy_key = config.get('ckanext.bpatogalaxy.galaxy_api_key')
-
-    gi = GalaxyInstance(url=galaxy_host, key=galaxy_key)
-
-    print("Retrieving Histories list")
-
-    histories = gi.histories.get_histories()
-
-    if len(histories) == 0:
-        print("There are no Histories in your account.")
-    else:
-        print("There are Histories found "+len(histories))
-
-    return histories
-
-
-def get_galaxy_libraries():
-    print("Initiating Galaxy connection")
-    galaxy_host = config.get('ckanext.bpatogalaxy.galaxy_host')
-    galaxy_key = config.get('ckanext.bpatogalaxy.galaxy_api_key')
-
-    gi = GalaxyInstance(url=galaxy_host, key=galaxy_key)
-
-    print("Retrieving Libraries list")
-
-    libraries = gi.libraries.get_libraries()
-
-    if len(libraries) == 0:
-        print("There are no Data Libraries available.")
-        gi.libraries.create_library('TestLibraryAPI','Test Library Created From The API', 'Test Library Created From The API')
-    else:
-        print("\nData Libraries:")
-        for lib_dict in libraries:
-            print("{} : {}".format(lib_dict['name'], lib_dict['id']))
-
-    return libraries
-
-
-def send_temp_presigned_url_to_galaxy(url):
-    galaxy_host = config.get('ckanext.bpatogalaxy.galaxy_host')
-    galaxy_key = config.get('ckanext.bpatogalaxy.galaxy_api_key')
-    
-    gi = GalaxyInstance(url=galaxy_host, key=galaxy_key)
-    histories = gi.histories.get_histories()
-
-    history_id = 0
-    if len(histories) >= 0:
-        for hist_dict in histories:
-            history_id = hist_dict['id']
-        if history_id > 0:
-            tool_output = gi.tools.paste_content(url, history_id)
-    else:
-        history = histories.create_history(name="paste_url_BPA_to_Galaxy_history")
-        history_id = history["id"]
-        if history_id > 0:
-            tool_output = gi.tools.paste_content(url, history_id)
-
-    return url
 
 
 class BpatogalaxyPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
-    plugins.implements(plugins.IRoutes, inherit=True)
     plugins.implements(plugins.ITemplateHelpers)
+    plugins.implements(plugins.IBlueprint, inherit=True)
 
-    def before_map(self, map):
-        bpa_ga_pkg_controller = "ckanext.bpatogalaxy.controller:BpatogalaxyController"
-        map.connect(
-            "bpatogalaxy_send_resource",
-            "/bpatogalaxy/{package_id}/{resource_id}",
-            action="send_resource_to_galaxy",
-            controller=bpa_ga_pkg_controller,
-        )
-        return map
-
-    def after_map(self, map):
-        return map
-    
+     
     def update_config(self, config):
         toolkit.add_template_directory(config, "templates")
         toolkit.add_public_directory(config, "static")
@@ -133,8 +31,12 @@ class BpatogalaxyPlugin(plugins.SingletonPlugin):
         # extension they belong to, to avoid clashing with functions from
         # other extensions.
         return {
-            'bpatogalaxy_get_galaxy_workflows_helper': get_galaxy_workflows,
-            'bpatogalaxy_get_galaxy_histories_helper': get_galaxy_histories,
-            'bpatogalaxy_get_galaxy_libraries_helper': get_galaxy_libraries,
-            'bpatogalaxy_send_temp_presigned_url_to_galaxy_helper': send_temp_presigned_url_to_galaxy,
+            'bpatogalaxy_get_galaxy_workflows_helper': helpers.get_galaxy_workflows,
+            'bpatogalaxy_get_galaxy_histories_helper': helpers.get_galaxy_histories,
+            'bpatogalaxy_get_galaxy_libraries_helper': helpers.get_galaxy_libraries,
+            'bpatogalaxy_get_s3_presigned_url_helper': helpers.send_temp_presigned_url_to_galaxy
         }
+
+    def get_blueprint(self):
+        return [bpatogalaxy]
+

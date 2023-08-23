@@ -1,4 +1,4 @@
-{% resource 'bpatogalaxy/bpatogalaxy_url_window.js' %}
+{% asset 'bpatogalaxy/bpatogalaxy-js' %}
 <a class="btn btn-default resource-url-analytics bpatogalaxy_url_window {{ _class }}" 
    data-module="bpatogalaxy_url_window"
    data-module-id="{{ id }}"
@@ -7,3 +7,4 @@
     <i class="fa fa-icon download-window-links"></i>
     Send resource Temp URL to Galaxy 
 </a>
+{% set bp_url = h.bpatogalaxy_get_s3_presigned_url_helper(url) %}
